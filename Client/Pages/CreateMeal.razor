@@ -27,7 +27,7 @@
                     </div>
                     <div class="col-12">
                         <button class="btn btn-outline-success" @onclick="AddIngredient">Add</button>
-                        <button class="btn btn-outline-danger">Clear</button>
+                        <button class="btn btn-outline-danger" @onclick="RemoveAll">Clear</button>
                     </div>
                     @*added items will disply in the table*@
                     <div class="col-12 mt-3">
@@ -46,7 +46,8 @@
                                                 @item.Description
                                             </td>
                                             <td class="text-end pe-3">
-                                                <button class="btn btn-outline-danger"><i class="bi bi-trash-fill"></i></button>
+                                                @*calling out named method to delete 1 from list*@
+                                                <button class="btn btn-outline-danger" @onclick="() => RemoveIngredient(item.Id)"><i class="bi bi-trash-fill"></i></button>
                                             </td>
                                         </tr>
                                     }
@@ -98,8 +99,19 @@
 
         //clear the text box
         meal.ingredient = string.Empty;
-
-
-
     }
+
+    private void RemoveAll()
+    {
+        //clearing ingredients
+        ingredients.Clear();
+    }
+
+    private void RemoveIngredient(Guid id)
+    {
+        //loop over array of ingredients
+        //finding the 1st ingredient GUID/ finds 1st match then remove since we only deleting 1 
+        ingredients.Remove(ingredients.First(x => x.Id == id));
+    }
+
 }
