@@ -56,7 +56,7 @@
                         </div>
                     </div>
                     <div class="col-12">
-                        <button class="btn btn-success rounded">Generate</button>
+                        <button class="btn btn-success rounded" @onclick="HandleSubmit">Generate</button>
                     </div>
                 </div>
             </EditForm>
@@ -65,14 +65,33 @@
 </div>
 
 @code {
+    //defining the variable that we can use inside the child component 
+    [CascadingParameter]
+    private RecipeState? rState { get; set; }
+
     private EditContext? editcontext;
     private List<Ingredient> ingredients = new List<Ingredient>();
     //instance of our class meal
     private Meal meal = new();
 
+
+
+
     protected override void OnInitialized()
     {
+        //sanity checks
+        if (rState is null)
+        {
+            //if null will go back to home page 
+            navigationManager.NavigateTo("/", forceLoad: true);
+            return;
+        }
+
         editcontext = new(meal);
+
+        //grabbing/pulling values out of state once loaded 
+        meal.mealtime = rState.MealTime;
+        ingredients = rState.Ingredients;
     }
 
     private class Meal
@@ -114,4 +133,13 @@
         ingredients.Remove(ingredients.First(x => x.Id == id));
     }
 
+    private void HandleSubmit()
+    {
+        //when we save(hit generate button)
+        //pushing into state
+        rState.MealTime = meal.mealtime;
+        rState.Ingredients = ingredients;
+
+        navigationManager.NavigateTo("/mealIdeas");
+    }
 }

@@ -1,7 +1,11 @@
 ﻿<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(TopNavLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        @*adding recipestate to whole app for access,
+        it is a global variable that can be acessed by all with it being parent and all within a child *@
+        <RecipeState>
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(TopNavLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </RecipeState>
     </Found>
     <NotFound>
         <PageTitle>Not found</PageTitle>
