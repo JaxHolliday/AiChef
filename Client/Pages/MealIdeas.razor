@@ -1,5 +1,6 @@
 ﻿@page "/mealIdeas"
 @using AiChef.Shared
+@inject NavigationManager navigationManager;
 
 @if (loaded == true)
 {
@@ -21,7 +22,12 @@
 else
 {
     <div class="container">
-        <p>Loading...</p>
+        <h3>RecipeState Values</h3>
+        <p>@rState.MealTime</p>
+        @foreach (var item in rState.Ingredients)
+        {
+            <p>@item.Description</p>
+        }
     </div>
 }
 
@@ -30,4 +36,22 @@ else
     private List<Idea> ideas = new List<Idea>();
     //making sure data is loaded for our list
     private bool loaded = false;
+
+    [CascadingParameter]
+    private RecipeState? rState { get; set; }
+
+    protected override void OnInitialized()
+    {
+        //checking if out state is null 
+        if (rState is null)
+        {
+            //making sure it is reset if failed to load 
+            navigationManager.NavigateTo("/", forceLoad: true);
+            return;
+        }
+
+
+
+
+    }
 }
