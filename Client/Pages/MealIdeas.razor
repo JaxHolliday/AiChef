@@ -1,6 +1,9 @@
 ﻿@page "/mealIdeas"
 @using AiChef.Shared
+@using System.Text.Json
 @inject NavigationManager navigationManager;
+@*allows page requests*@
+@inject HttpClient Http;
 
 @if (loaded == true)
 {
@@ -22,12 +25,7 @@
 else
 {
     <div class="container">
-        <h3>RecipeState Values</h3>
-        <p>@rState.MealTime</p>
-        @foreach (var item in rState.Ingredients)
-        {
-            <p>@item.Description</p>
-        }
+        <p>Loading...</p>
     </div>
 }
 
@@ -50,8 +48,25 @@ else
             return;
         }
 
+        if (rState.Ideas.Count < 1)
+        {
+            GetIdeas();
+        }
+        else
+        {
+            //will haft to call these methods async
+            loaded = true;
+            ideas = rState.Ideas;
+            StateHasChanged();
+        }    
+    }
 
+    private async void GetIdeas()
+    {
+        //controller => action
+        string baseuri = "Recipe/GetRecipe";
 
+        //call web API controller
 
     }
 }
