@@ -38,17 +38,25 @@ else
     [CascadingParameter]
     private RecipeState? rState { get; set; }
 
+    private readonly JsonSerializerOptions _jsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        };
+
+
     protected override void OnInitialized()
     {
-        //checking if out state is null 
+        //checking if out state is null
         if (rState is null)
         {
-            //making sure it is reset if failed to load 
+            //making sure it is reset if failed to load
             navigationManager.NavigateTo("/", forceLoad: true);
             return;
         }
 
-        if (rState.Ideas.Count < 1)
+        if (rState.Ideas.Count<1)
         {
             GetIdeas();
         }
@@ -58,15 +66,45 @@ else
             loaded = true;
             ideas = rState.Ideas;
             StateHasChanged();
-        }    
+        }
     }
 
     private async void GetIdeas()
     {
         //controller => action
-        string baseuri = "Recipe/GetRecipe";
+        string baseuri = "Recipe/GetRecipeIdeas";
+        loaded = false;
+        RecipeParms recipeParms = new RecipeParms()
+            {
+                MealTime = rState.MealTime,
+                Ingredients = rState.Ingredients
+            };
 
         //call web API controller
+        try
+        {
+            //how we call any service usign HttpClient            
+            HttpResponseMessage response = await Http.PostAsJsonAsync(baseuri, recipeParms, _jsonOptions);
+
+            response.EnsureSuccessStatusCode();
+
+            //how we read the content from our response object
+            //await => called a method when we dont kjnow is coming back, then when it finally comes back it sets
+            ideas = (await response.Content.ReadFromJsonAsync<List<Idea>>())!;
+
+            //store in state
+            rState.Ideas = ideas;
+            loaded = true;
+            StateHasChanged();
+
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Error: Could not fetch recipe ideas");
+           
+        }
+
+
 
     }
 }

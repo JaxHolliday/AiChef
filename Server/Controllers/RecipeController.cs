@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AiChef.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class RecipeController : ControllerBase
     {
