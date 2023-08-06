@@ -61,7 +61,7 @@ namespace AiChef.Server.Services
                 }
             }
         };
-        
+
         //standard based on whatever API youi are using 
         public OpenAIService(IConfiguration configuration)
         {
@@ -107,7 +107,7 @@ namespace AiChef.Server.Services
             userPrompt = $"The meal I want to cook is {mealtime}. {ingredientPrompt}";
             ChatMessage systemMessage = new()
             {
-                Role = "system", 
+                Role = "system",
                 Content = $"{systemPrompt}"
             };
 
@@ -136,6 +136,29 @@ namespace AiChef.Server.Services
                                                              .FirstOrDefault(m => m.Message?.FunctionCall is not null)?
                                                              .Message?
                                                              .FunctionCall;
+
+            Result<List<Idea>>? ideasResult = new();
+
+            if (functionResponse?.Arguments is not null)
+            {
+                try
+                {
+                    //checking for null
+                    //looking into the function response and trying to cast it into a list of Idea
+                    ideasResult = JsonSerializer.Deserialize<Result<List<Idea>>>(functionResponse.Arguments, _jsonOptions);
+                }
+                catch (Exception ex)
+                {
+                    ideasResult = new()
+                    {
+                        Exception = ex,
+                        ErrorMessage = await httpResponse.Content.ReadAsStringAsync()
+                    };                    
+                }
+            }
+
+            //returns list of objects and if null a new blank lsit 
+            return ideasResult?.Data ?? new List<Idea>();
         }
     }
 }
