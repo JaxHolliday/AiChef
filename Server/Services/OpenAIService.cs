@@ -2,6 +2,7 @@
 using AIChef.Server.ChatEndPoint;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AiChef.Server.Services
 {
@@ -77,7 +78,8 @@ namespace AiChef.Server.Services
             {
                 PropertyNameCaseInsensitive = true,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                //DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
             };
 
         }
@@ -123,11 +125,11 @@ namespace AiChef.Server.Services
                 Model = "gpt-3.5-turbo-0613",
                 Messages = new[] { systemMessage, userMessage },
                 Functions = new[] { _ideaFunction },
-                FunctionCall = new ChatFunctionResponse { Name = _ideaFunction.Name }
+                FunctionCall = new { Name = _ideaFunction.Name }
             };
 
             //call to OpenAi with the request object and how to format
-            HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync(url, request, _jsonOptions);
+            HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync(url,request,_jsonOptions);
             // looking at the content for the response 
             ChatResponse? response = await httpResponse.Content.ReadFromJsonAsync<ChatResponse>();
 
@@ -145,7 +147,7 @@ namespace AiChef.Server.Services
                 {
                     //checking for null
                     //looking into the function response and trying to cast it into a list of Idea
-                    ideasResult = JsonSerializer.Deserialize<Result<List<Idea>>>(functionResponse.Arguments, _jsonOptions);
+                    ideasResult = JsonSerializer.Deserialize<Result<List<Idea>>>(functionResponse.Arguments,_jsonOptions);
                 }
                 catch (Exception ex)
                 {
