@@ -12,7 +12,7 @@
         <div class="list-group">
             @foreach (var idea in ideas)
             {
-                <button class="list-group-item list-group-item-action list-group-item-success p-2">
+                <button @onclick="() => GetRecipe(idea.index)" class="list-group-item list-group-item-action list-group-item-success p-2">
                     <div class="d-flex w-100 justify-content-sm-between">
                         <h2 class="mb-1 fw-bold">@idea.title</h2>
                         <p class="mb-1">@idea.description</p>
@@ -45,7 +45,6 @@ else
             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
         };
 
-
     protected override void OnInitialized()
     {
         //checking if out state is null
@@ -74,11 +73,12 @@ else
         //controller => action
         string baseuri = "Recipe/GetRecipeIdeas";
         loaded = false;
+
         RecipeParms recipeParms = new RecipeParms()
-            {
-                MealTime = rState.MealTime,
-                Ingredients = rState.Ingredients
-            };
+        {
+           MealTime = rState.MealTime,
+           Ingredients = rState.Ingredients
+        };
 
         //call web API controller
         try
@@ -101,10 +101,12 @@ else
         catch (Exception)
         {
             Console.WriteLine("Error: Could not fetch recipe ideas");
-           
+
         }
+    }
 
-
-
+    private void GetRecipe(int index)
+    {
+        navigationManager.NavigateTo($"/mealRecipe/{index}");
     }
 }

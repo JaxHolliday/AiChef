@@ -1,0 +1,29 @@
+﻿@page "/mealRecipe/{Index:int}"
+@using AiChef.Client.Shared;
+@using AiChef.Shared;
+@using System.Text.Json;
+@inject HttpClient Http;
+@inject NavigationManager navigationManager;
+
+<div class="container mt-5">
+    <h3>Meal Recipe</h3>
+    <p>Idea Index = @Index</p>
+    <p>Recipe Title = @recipeState.MealTime</p>
+</div>
+
+@code {
+
+    [CascadingParameter]
+    private RecipeState? recipeState { get; set; }
+
+    [Parameter]
+    public int Index { get; set; }
+
+    private string title;
+
+    protected override void OnInitialized()
+    {
+        title = recipeState.Ideas.FirstOrDefault(i => i.index == Index).title;
+    }
+
+}
