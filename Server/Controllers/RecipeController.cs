@@ -40,5 +40,20 @@ namespace AiChef.Server.Controllers
             //this return is for testing purposes
             //return SampleData.RecipeIdeas;
         }
+
+
+        [HttpPost, Route("GetRecipe")]
+        public async Task<ActionResult<Recipe?>> GetRecipe(RecipeParms recipeParms)
+        {
+            return SampleData.Recipe;
+        }
+
+        [HttpGet, Route("GetRecipeImage")]
+        public async Task<RecipeImage> GetRecipeImage(string title)
+        {
+            return SampleData.RecipeImage;
+        }
+
+
     }
 }

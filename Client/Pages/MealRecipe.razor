@@ -2,28 +2,52 @@
 @using AiChef.Client.Shared;
 @using AiChef.Shared;
 @using System.Text.Json;
+@using System.Web;
 @inject HttpClient Http;
 @inject NavigationManager navigationManager;
 
-<div class="container mt-5 h-100">
-    <div class="d-flex flex-column flex-row justify-content-start">
-        <div class="text-center text-lg-start">
-            <img class="rounded-3" />
+@if (loaded == true)
+{
+    <div class="container mt-5 h-100">
+        <div class="d-flex flex-column flex-row justify-content-start">
+            <div class="text-center text-lg-start">
+                <img src="@recipeImageUrl" class="rounded-3" />
+            </div>
+            <div class="flex-grow-1 px-3">
+                <h1 class="fw-bold">@recipe.title</h1>
+                <p>@recipe.summary</p>
+            </div>
         </div>
-        <div class="flex-grow-1 px-3">
-            <h1 class="fw-bold">@title</h1>
-            <p>Description</p>
+        <div class="row row-cols-1 row-cols-md-2">
+            <div class="col mt-3">
+                <h2>Ingredients</h2>
+                <ul>
+                    @*//loop over each ingredient and putting into list*@
+                    @foreach (var item in recipe.ingredients)
+                    {
+                        <li>@item</li>
+                    }
+                </ul>
+            </div>
+            <div class="col mt-3">
+                <h2>Instructions</h2>
+                <ul>
+                    @foreach (var item in recipe.instructions)
+                    {
+                        <li>@item</li>
+                    }
+                </ul>
+            </div>
         </div>
     </div>
-    <div class="row row-cols-1 row-cols-md-2">
-        <div class="col mt-3">
-            <h2>Ingredients</h2>
-        </div>
-        <div class="col">
-            <h2>Instructions</h2>
-        </div>
+}
+else
+{
+    <div class="container">
+        <p>Loading. . .</p>
     </div>
-</div>
+}
+
 
 @code {
 
@@ -33,11 +57,55 @@
     [Parameter]
     public int Index { get; set; }
 
+    bool loaded = false;
+
     private string title;
+    private string recipeImageUrl = string.Empty;
+    private Recipe recipe;
 
     protected override void OnInitialized()
     {
-        title = recipeState.Ideas.FirstOrDefault(i => i.index == Index).title;
+        loaded = false;
+        GetRecipe();
     }
+
+    private async void GetRecipe()
+    {
+        string baseuri = "Recipe/GetRecipe";
+
+        try
+        {
+            title = recipeState.Ideas.FirstOrDefault(i => i.index == Index).title;
+            //loaded = true;
+
+            RecipeParms recipeParms = new RecipeParms()
+                {
+                    MealTime = recipeState.MealTime,
+                    Ingredients = recipeState.Ingredients,
+                    SelectedIdea = title
+                };
+
+            //Get Recipe Image => call recipe controller/then action then parameter
+            HttpResponseMessage responseImage = await Http.GetAsync($"Recipe/GetRecipeImage?title={HttpUtility.UrlEncode(title)}");
+            var recipeImage = await responseImage.Content.ReadFromJsonAsync<RecipeImage>();
+            recipeImageUrl = recipeImage!.data[0].url;
+
+            //Get Recipe
+            HttpResponseMessage responseRecipe = await Http.PostAsJsonAsync(baseuri, recipeParms);
+
+            responseRecipe.EnsureSuccessStatusCode();
+
+            recipe = (await responseRecipe.Content.ReadFromJsonAsync<Recipe>());
+
+            loaded = true;
+            //since we are using awaits statements
+            StateHasChanged();
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Error: Could not generate recipe");
+        }
+    }
+
 
 }
