@@ -1,0 +1,13 @@
+﻿/*mobile*/
+.recipeImage {
+    height: 300px;
+    width: 300px;
+}
+
+/*larger desktops*/
+@media (min-width:992px){
+    .recipeImage{
+        height: 450px;
+        width: 450px;
+    }
+}
