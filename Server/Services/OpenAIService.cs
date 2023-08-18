@@ -260,5 +260,38 @@ namespace AiChef.Server.Services
             return recipe?.Data;
 
         }
+
+        public async Task<RecipeImage?> CreateRecipeImage(string recipeTitle)
+        {
+            //endpoint / make sure tyo check open ai docs
+            string url = $"{_baseUrl}images/generations";
+            string userPrompt = $"Create a restaurant product shot for {recipeTitle}";
+
+            //request obj
+            ImageGenerationRequest request = new()
+            {
+                Prompt = userPrompt,
+            };
+
+            //APIcall
+            HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync(url , request, _jsonOptions);
+
+            //obj to cast into
+            RecipeImage? recipeImage = null;
+
+            try
+            {
+                recipeImage = await httpResponse.Content.ReadFromJsonAsync<RecipeImage>();
+            }
+            catch 
+            {
+                Console.WriteLine("Error: Recipe Image could not be retreived");
+                throw;
+            }
+
+            return recipeImage;
+
+
+        }
     }
 }
